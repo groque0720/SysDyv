@@ -28,6 +28,8 @@ class PruebaVehiculos extends Component
     	// 	$this->carga_boletos = 1;
     	// }
     	$this->boletos = $this->obtener_boletos();
+
+    	return dd($this->boletos);
     	return view('livewire.prueba-vehiculos');
     }
 
@@ -38,7 +40,9 @@ class PruebaVehiculos extends Component
 		// $password = "mA3wJbiPgcXnTZg7y05R";
     	$username = env('API_TASA_USER');
 		$password = env('API_TASA_PASSWORD');
-		$host = "http://200.7.15.135:9101/dcx/api/boletos?created_since=2010-05-11T08:00:00.000Z&detailed=true";
+		// $host = "http://200.7.15.135:9101/dcx/api/boletos?created_since=2010-05-11T08:00:00.000Z&detailed=true";
+		$host = "http://200.7.15.135:9202/dcx/api/vehiculos";
+		http://200.7.15.135:9202/dcx/api/vehiculos
 
 		// $ch = curl_init();
 		// curl_setopt($ch, CURLOPT_URL, $host);

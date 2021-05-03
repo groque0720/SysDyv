@@ -3,7 +3,7 @@
 <div
 	class="fixed top-0 left-0 h-screen w-full bg-gray-900 bg-opacity-60 flex justify-center items-center"
 	x-show="{{ $trigger }}"
-	x-on:click.self="{{ $trigger }} = false"
+	{{-- x-on:click.self="{{ $trigger }} = false" --}}
 	x-on:keydown.escape.window = "{{ $trigger }} = false"
 	x-cloak
 	>

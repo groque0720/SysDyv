@@ -6,50 +6,37 @@
     >
     <div class="bg-white w-full md:w-9/12 mx-auto p-3 rounded-md">
 
-	    <div class="text-center">
-	        <h1 class="uppercase font-extrabold">Lista Aplicaciones</h1>
-	    </div>
+        @include('layouts.parciales.form-table-cabecera-back',[ 'titulo' => 'Lista Aplicaciones' ])
+        @include('layouts.parciales.form-table-busqueda-nuevo')
 
-        <div class="flex items-center justify-between my-5">
-            <div class="text-black bg-white flex items-center justify-center">
-              <div class="border rounded overflow-hidden flex">
-                <button class="flex items-center justify-center px-4 border-l">
-                  <x-simbolos class="text-sm text-gray-500" nombre="search" />
-                </button>
-                <input type="search" wire:model="search" class="px-4 py-1 border-none focus:border-transparent" placeholder="Buscar...">
-              </div>
-            </div>
-            <div class="">
-                <x-button class="bg-indigo-600" wire:click="create()">
-                    <x-simbolos nombre="plus-circle" />
-                </x-button>
-            </div>
-        </div>
-
-        <div class="flex justify-center mx-auto mb-5">
+        <div class="flex justify-center mx-auto my-5 border border-gray-300 rounded overflow-hidden">
             <table class="w-full">
                 <thead
-                    class="border-b-2 border-gray-300 text-indigo-600">
-                    <tr>
-                        <th>Id</th>
-                        <th>Aplicacion</th>
-                        <th>Icono</th>
-                        <th>Nombre Ruta</th>
-                        <th>Activo</th>
-                        <th>Editar</th>
+                    class="bg-indigo-500 text-white rounded">
+                    <tr class="">
+                        <th class="py-2">Id</th>
+                        <th class="py-2">Aplicacion</th>
+                        <th class="py-2">Icono</th>
+                        <th class="py-2">Nombre Ruta</th>
+                        <th class="py-2">Activo</th>
+                        <th class="py-2">Editar</th>
                     </tr>
                 </thead>
-                <tbody >
+                <tbody class="last:border-black">
                     @foreach ($aplicaciones as $aplicacion)
                     <tr class="text-sm border-b border-gray-200 py-4 hover:bg-gray-100 text-center">
                         <td class="py-1"> {{ $aplicacion->id}} </td>
                         <td class="py-1"> {{ $aplicacion->aplicacion }} </td>
                         <td class="py-1">
 	                        	<div class="flex items-center justify-center">
-	                        		<img class="w-10 h-10" src="{{ Storage::url( $aplicacion->icono ) }}" alt="">
+	                        		<img class="w-8 h-8" src="{{ Storage::url( $aplicacion->icono ) }}" alt="">
 	                        	</div>
                         	</td>
-                        <td class="py-1"> <a href="{{ route($aplicacion->nombre_ruta) }}">{{ $aplicacion->nombre_ruta }}</a> </td>
+                        <td class="py-1">
+                                <a href="{{ route($aplicacion->nombre_ruta) }}" class="text-indigo-500">
+                                    <x-simbolos nombre="link"></x-simbolos>
+                                    {{ $aplicacion->nombre_ruta }}</a>
+                            </td>
                         <td class="py-1">
                                 <div class="{{ ($aplicacion->activo) ? 'text-green-500' : 'text-red-500' }} flex justify-center items-center">
                                     <x-simbolos class="text-2xl" nombre="{{ ($aplicacion->activo) ? 'check' : 'nocheck' }}"></x-simbolos>
@@ -90,8 +77,8 @@
                 	<x-label>Icono <span class="text-xs">(max: 1Mb)</span></x-label>
                 	<div class="w-full h-24 border border-gray-300 border-dashed rounded divide-dashed hover:bg-gray-50 cursor-pointer flex justify-center items-center relative">
                 		<div class="w-20 h-20 flex justify-center items-center">
-	                		@if ($iconoUpdateValidate)
-			    			  <img class="w-full h-full" src="{{ $iconoUpdate->temporaryUrl() 	}}">
+	                		@if ($iconoUpdateValidate != null)
+			    			  <img class="w-full h-full" src="{{ $iconoUpdate->temporaryUrl() }}">
 			    			@else
 			    				<img class="w-full h-full" src="{{ Storage::url( $icono ) }}" alt="icono_aplicacion">
 			    			@endif
@@ -129,46 +116,18 @@
                 @endif
             </form>
         </x-form>
-        <x-slot name="footer">
-            {{-- <x-button class="bg-indigo-600" wire:click="update()">Aceptar</x-button> --}}
-            <x-button
-                wire:click.prevent="update"
-                class="border border-green-500 text-green-500 bg-green-50 hover:bg-green-200 ">
-                    <span
-                        class="animate-spin mr-5"
-                        wire:loading wire:target="update">
-                            &#9696</span>
-                    <span
-                        class="animate-pulse"
-                        wire:loading wire:target="update">Procesando...</span>
 
-                    <span wire:loading.remove wire:target="update">Aceptar</span>
-                </x-button>
+        <x-slot name="footer">
+            <x-button-aceptar wire:click.prevent="update">Aceptar</x-button-aceptar>
         </x-slot>
+
     </x-modal>
 
     <x-modal trigger="viewModalDelete">
-        <x-slot name="titulo">
-            <h1 class="uppercase">Eliminar</h1>
-        </x-slot>
-        <x-form class="p-20">
-            <h1>Confirma elimnar la Aplicación?</h1>
-        </x-form>
-        <x-slot name="footer">
-            <x-button
-                wire:click.prevent="confirmDelete"
-                class="border border-red-500 text-red-500 bg-red-50 hover:bg-red-200 ">
-                    <span
-                        class="animate-spin mr-5"
-                        wire:loading wire:target="confirmDelete">
-                            <x-simbolos nombre="procesando" class="text-sm"></x-simbolos></span>
-                    <span
-                        class="animate-pulse"
-                        wire:loading wire:target="confirmDelete">Procesando...</span>
-
-                    <span wire:loading.remove wire:target="confirmDelete">Si, Eliminar</span>
-                </x-button>
-        </x-slot>
+        @include('layouts.parciales.form-delete-confirm',
+            ['titulo' => 'Eliminar',
+            'mensaje_delete' => "Confirma eliminar la aplicación'".$this->aplicacion_nombre."' ",
+            ])
     </x-modal>
 
 </div>

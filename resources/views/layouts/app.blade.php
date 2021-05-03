@@ -19,8 +19,9 @@
 
         <!-- Scripts -->
         <script src="{{ asset('js/app.js') }}" defer></script>
+
     </head>
-    <body class="font-sans antialiased text-sm text-gray-600 bg-gray-100">
+    <body class="font-sans antialiased text-sm text-gray-700 bg-gray-200">
         <div class="min-h-screen">
             @include('layouts.navigation')
             <main class="mt-3 mx-auto text-sm">

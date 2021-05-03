@@ -59,6 +59,7 @@ class AplicacionesDatos extends Component
     }
 
     public function updatedIconoUpdate(){
+        $this->iconoUpdateValidate = null;
         $this->validate($this->rules_img, $this->messages_img);
         $this->iconoUpdateValidate = $this->iconoUpdate;
     }
@@ -117,6 +118,8 @@ class AplicacionesDatos extends Component
         $aplicacion->activo = $this->activo;
         $aplicacion->save();
 
+        $this->resetInput();
+
     	$this->viewModal = false;
     }
 
@@ -141,7 +144,7 @@ class AplicacionesDatos extends Component
         $this->aplicacion_nombre    = '';
 		$this->icono                = '';
 		$this->iconoUpdate          = null;
-        $this->iiconoUpdateValidate = null;
+        $this->iconoUpdateValidate = null;
 		$this->nombre_ruta          = '';
 		$this->activo               = 0;
     }

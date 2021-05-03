@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Configuracion;
 use App\Models\Empresa;
 use App\Models\Negocio;
 use App\Models\Sucursal;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -20,6 +21,8 @@ class SucursalesDatos extends Component
 	public $accion='';
 	public $viewModal = false;
     public $viewModalDelete = false;
+    public $sort = 'id';
+    public $order = 'asc';
     public $search = '';
 
     protected $queryString = [
@@ -41,21 +44,46 @@ class SucursalesDatos extends Component
     public function render()
     {
         $busq = $this->search;
-        $sucursales = Sucursal::where('sucursal','like',"%{$this->search}%")
-        						->with(['empresa','negocio'])
-        						->orWhereHas('negocio', function($negocio) use($busq){
-        							$negocio->where('negocio','like',"%{$busq}%");
-        						})
-        						// ->orWhereHas('empresa', function($empresa) use($busq){
-        						// 	$empresa->where('empresa','like',"%{$busq}%");
-        						// })
-        						->orderBy('id')->paginate(10);
+        // $sucursales = Sucursal::where('sucursal','like',"%{$this->search}%")
+        // 						->with(['empresa','negocio'])
+        // 						->orWhereHas('negocio', function($negocio) use($busq){
+        // 							$negocio->where('negocio','like',"%{$busq}%");
+        // 						})
+        // 						// ->orWhereHas('empresa', function($empresa) use($busq){
+        // 						// 	$empresa->where('empresa','like',"%{$busq}%");
+        // 						// })
+        // 						->orderBy($this->sort, $this->order)->paginate(10);
+
+        $sucursales = DB::table('sucursals')
+                             ->select('sucursals.*','empresas.empresa','negocios.negocio')
+                            ->join('empresas','sucursals.empresa_id','=','empresas.id')
+                            ->join('negocios','sucursals.negocio_id','=','negocios.id')
+                            ->where('sucursal','like',"%{$this->search}%")
+                            ->orWhere('negocio','like',"%{$this->search}%")
+                            ->orderBy($this->sort, $this->order)
+                            ->paginate(10);
+
+                            // return dd($sucursales);
 
         return view('livewire.configuracion.sucursales-datos', compact('sucursales'));
     }
 
     public function updatingSearch()
     {
+        $this->gotoPage(1);
+    }
+
+    public function newOrder($field){
+        if ($this->sort == $field) {
+            if ($this->order == 'asc') {
+                $this->order = 'desc';
+            }else{
+                $this->order = 'asc';
+            }
+        }else{
+            $this->sort = $field;
+            $this->order = 'asc';
+        }
         $this->gotoPage(1);
     }
 

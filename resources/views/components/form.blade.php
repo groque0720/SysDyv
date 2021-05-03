@@ -5,4 +5,7 @@
     <div class="w-full bg-white overflow-hidden">
         {{ $slot }}
     </div>
+    <div class="flex justify-end border-t pt-2">
+		{{ $footer ?? '' }}
+	</div>
 </div>

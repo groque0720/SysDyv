@@ -11,7 +11,7 @@ class Perfil extends Model
 
     public function aplicaciones()
     {
-    	return $this->BelongsToMany(Aplicacion::class, 'aplicacions_perfils');
+    	return $this->BelongsToMany(Aplicacion::class, 'aplicacions_perfils')->orderBy('aplicacion');
     }
 
     public function usuarios()

@@ -8,9 +8,14 @@ use App\Http\Livewire\Configuracion\NegociosDatos;
 use App\Http\Livewire\Configuracion\PerfilesAplicacionesDatos;
 use App\Http\Livewire\Configuracion\PerfilesDatos;
 use App\Http\Livewire\Configuracion\SucursalesDatos;
+use App\Http\Livewire\Configuracion\UsuariosDatos;
+use App\Http\Livewire\Configuracion\UsuariosEditarDatos;
+use App\Models\Marca;
+use App\Models\Modelo;
 use App\Models\Negocio;
 use App\Models\Sucursal;
 use App\Models\User;
+use App\Models\Version;
 use Illuminate\Support\Facades\Route;
 
 
@@ -30,7 +35,7 @@ use Illuminate\Support\Facades\Route;
 
 // 	// $user = User::find(1);
 // 	// $user->sucursales()->attach(array(1, 2));
-// 	// $user->sucursales()->detach(array(1, 2));
+// 	// $user->sucursales()array(1, 2));
 // 	// $user->sucursales()->sync(array(1, 2));
 
 // 	$user = user::find(1);
@@ -121,14 +126,79 @@ use Illuminate\Support\Facades\Route;
 //
 //
 
+Route::get('/vehiculos', function (){
+
+    	$username = env('API_TASA_USER');
+		$password = env('API_TASA_PASSWORD');
+		$host = "http://200.7.15.135:9202/dcx/api/vehiculos";
+		// $host = "http://200.7.15.135:9101/dcx/api/boletos?created_since=2010-05-11T08:00:00.000Z&detailed=true";
+		$auth = base64_encode("$username:$password");
+		$context = stream_context_create([
+		    "http" => [
+		        "header" => "Authorization: Basic $auth"
+		    ]
+		]);
+		$response = file_get_contents("$host", false, $context);
+		$response = json_decode($response);
+
+		foreach ($response as $key => $vehiculo) {
+
+			$version_tasa_IdProducto = $vehiculo->Vehiculo->IdProducto;
+			$version = Version::where('IdProducto','=',$version_tasa_IdProducto)->first();
+
+			if ( $version === null) {
+
+				$marca_tasa =  $vehiculo->Vehiculo->Marca;
+				$marca = Marca::where('marca','=',$marca_tasa)->first();
+				if ( $marca === null) {
+					$marca = new Marca;
+					$marca->marca = $marca_tasa;
+					$marca->save();
+				}
+
+				$modelo_tasa = $vehiculo->Vehiculo->Modelo;
+				$modelo = Modelo::where('modelo','=',$modelo_tasa)->first();
+				if ( $modelo === null) {
+					$modelo = new Modelo;
+					$modelo->marca_id = $marca->id;
+					$modelo->modelo = $modelo_tasa ?? '-';
+					$modelo->save();
+				}
+
+				// $version_tasa_IdProducto = $vehiculo->Vehiculo->IdProducto;
+				// $version = Version::where('IdProducto','=',$version_tasa_IdProducto)->first();
+				// if ( $version === null) {
+				$version = new Version;
+				$version->modelo_id = $modelo->id;
+				$version->CodProducto =$vehiculo->Vehiculo->CodProducto;
+				$version->DenominacionComercial = $vehiculo->Vehiculo->DenominacionComercial;
+				$version->IdProducto =$vehiculo->Vehiculo->IdProducto;
+				$version->Katashiki = $vehiculo->Vehiculo->Katashiki;
+				$version->ProductionSuffix =$vehiculo->Vehiculo->ProductionSuffix;
+				$version->SalesSuffix = $vehiculo->Vehiculo->SalesSuffix;
+				$version->SalesSuffixDescription = $vehiculo->Vehiculo->SalesSuffixDescription;
+				$version->version = $vehiculo->Vehiculo->Version;
+				$version->save();
+			}
+		}
+
+		return collect($response);
+
+
+});
+
+
 Route::group(['middleware' => 'auth'], function(){
-	// Route::get('/', Aplicaciones::class)->name('aplicaciones');
+	Route::get('/', Aplicaciones::class)->name('aplicaciones');
 	Route::get('/empresa', EmpresaDatos::class)->name('empresa');
 	Route::get('/negocios', NegociosDatos::class)->name('negocios');
 	Route::get('/sucursales', SucursalesDatos::class)->name('sucursales');
 	Route::get('/perfiles', PerfilesDatos::class)->name('perfiles');
-	Route::get('/perfiles/{perfil_nombre}/aplicaciones', PerfilesAplicacionesDatos::class)->name('perfiles.aplicaciones');
+	Route::get('/perfiles/{perfil_nombre}/aplicaciones', PerfilesAplicacionesDatos::class)
+				->name('perfiles.aplicaciones');
     Route::get('/aplicaciones', AplicacionesDatos::class)->name('aplicaciones');
+    Route::get('/usuarios', UsuariosDatos::class)->name('usuarios');
+    Route::get('/usuario/{user_id?}', UsuariosEditarDatos::class)->name('usuario.editar');
 });
 
 Route::get('/dashboard', function () {

@@ -42,9 +42,10 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function aplicaciones()
+    public function aplicaciones($seach)
     {
-        return DB::select('SELECT DISTINCT
+        // return $this->perfiles()->aplicaciones();
+        return collect(DB::select("SELECT DISTINCT
                         aplicacion, icono, nombre_ruta
                         FROM
                         perfils_users
@@ -52,17 +53,20 @@ class User extends Authenticatable
                         INNER JOIN aplicacions_perfils ON aplicacions_perfils.perfil_id = perfils.id
                         INNER JOIN aplicacions ON aplicacions_perfils.aplicacion_id = aplicacions.id
                         WHERE
-                        perfils_users.user_id = ?', [$this->id]);
+                        aplicacions.aplicacion like '%". $seach ."%' AND
+                        perfils_users.user_id = ?", [$this->id]));
     }
 
     public function perfiles()
     {
-        return $this->BelongsToMany(Perfil::class, 'perfils_users');
+        return $this->BelongsToMany(Perfil::class, 'perfils_users')->where('perfils.activo',1);;
     }
 
     public function sucursales()
     {
-        return $this->BelongsToMany('App\Models\Sucursal', 'sucursals_users');
+        return $this->BelongsToMany('App\Models\Sucursal', 'sucursals_users')
+                    ->where('sucursals.activo',1)
+                    ->orderBy('sucursals.id');
     }
 
 }
